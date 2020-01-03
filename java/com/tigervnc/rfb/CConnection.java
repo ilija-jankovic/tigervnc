@@ -302,7 +302,9 @@ abstract public class CConnection extends CMsgHandler {
   private void processSecurityResultMsg() {
     vlog.debug("processing security result message");
     int result;
-    if (server.beforeVersion(3,8) && csecurity.getType() == Security.secTypeNone) {
+    if (server.beforeVersion(3,8) && (csecurity.getType() == Security.secTypeNone ||
+         (csecurity instanceof CSecurityRFBTLS &&
+          csecurity.getType() == Security.secTypeTLSNone))) {
       result = Security.secResultOK;
     } else {
       if (!is.checkNoWait(1)) return;
@@ -345,7 +347,7 @@ abstract public class CConnection extends CMsgHandler {
     reader_ = new CMsgReader(this, is);
     writer_ = new CMsgWriter(server, os);
     vlog.debug("Authentication success!");
-    authSuccess();
+    //authSuccess();
     writer_.writeClientInit(shared);
   }
 
@@ -485,7 +487,7 @@ abstract public class CConnection extends CMsgHandler {
   // Methods to be overridden in a derived class
 
   // authSuccess() is called when authentication has succeeded.
-  public void authSuccess() { }
+  //public void authSuccess() { }
 
   // initDone() is called when the connection is fully established
   // and standard messages can be sent. This is called before the
@@ -727,7 +729,7 @@ abstract public class CConnection extends CMsgHandler {
   private CMsgWriter writer_;
   private boolean deleteStreamsWhenDone;
   private boolean shared;
-  private stateEnum state_;
+  protected stateEnum state_;
 
   private String serverName;
   private int serverPort;
